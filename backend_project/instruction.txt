@@ -1,0 +1,9 @@
+npm init -y
+npm install koa@^2.13.4
+npm install @koa/cors
+npm install koa-router koa-bodyparser mongoose jsonwebtoken bcryptjs cors class-validator class-transformer
+npm install --save-dev typescript ts-node nodemon @types/node @types/koa @types/koa-router @types/jsonwebtoken @types/bcryptjs
+npm install --save-dev @types/koa-bodyparser @types/koa__cors
+npm install --save-dev ts-node-dev
+npx tsc --init
+

@@ -1,0 +1,85 @@
+{
+  "tabs": {
+    "calendar": "Календар",
+    "map": "Мапа",
+    "new": "Нове",
+    "list": "Список"
+  },
+  "common": {
+    "success": "Успішно",
+    "noDescription": "Немає опису",
+    "noData": "Немає данних"
+  },
+  "drawer": {
+    "home": "Головна",
+    "profile": "Профіль",
+    "themeSelect": "Вибір теми",
+    "languageSelect": "Вибір мови",
+    "logout": "Вихід"
+  },
+  "screens": {
+    "calendarTitle": "Календар",
+    "mapTitle": "Мапа",
+    "newTitle": "Нове правопорушення",
+    "profileTitle": "Профіль",
+    "profileStub": "Профіль (заглушка)",
+    "themeTitle": "Тема",
+    "languageTitle": "Мова",
+    "reportDetail": "Деталі порушення"
+  },
+  "theme": {
+    "current": "Поточна тема",
+    "toggle": "Змінити тему"
+  },
+  "language": {
+    "current": "Поточна мова",
+    "english": "Англійська",
+    "ukrainian": "Українська"
+  },
+  "violation": {
+    "description": "Опис",
+    "category": "Категорія",
+    "takePhoto": "Зробити фото",
+    "save": "Зберегти",
+    "saved": "Збережено в SQLite",
+    "location": "Локація"
+  },
+  "categories": {
+    "road_damage": "Пошкодження дороги",
+    "illegal_parking": "Незаконне паркування",
+    "garbage": "Сміття",
+    "lighting": "Освітлення",
+    "other": "Інше"
+  },
+  "list": {
+    "title": "Список правопорушень",
+    "empty": "Немає збережених правопорушень"
+  },
+  "auth": {
+    "login": "Вхід",
+    "register": "Реєстрація",
+    "email": "Email",
+    "password": "Пароль",
+    "confirmPassword": "Підтвердити пароль",
+    "firstName": "Ім'я",
+    "lastName": "Прізвище",
+    "loginButton": "Увійти",
+    "registerButton": "Зареєструватися",
+    "haveAccount": "Вже є акаунт?",
+    "noAccount": "Немає акаунту?",
+    "goToLogin": "Увійти",
+    "goToRegister": "Зареєструватися",
+    "emailRequired": "Введіть email",
+    "passwordRequired": "Введіть пароль",
+    "firstNameRequired": "Введіть ім'я",
+    "lastNameRequired": "Введіть прізвище",
+    "passwordsNotMatch": "Паролі не співпадають",
+    "invalidEmail": "Невірний формат email",
+    "passwordTooShort": "Пароль має бути мінімум 6 символів",
+    "loginSuccess": "Ви успішно увійшли!",
+    "registerSuccess": "Реєстрація успішна! Автоматичний вхід...",
+    "notLoggedIn": "Ви не авторизовані",
+    "loginRequiredTitle": "Створення правопорушення доступне лише після входу",
+    "loginRequiredText": "Відкрийте меню зліва та перейдіть до екрана входу"
+  }
+}

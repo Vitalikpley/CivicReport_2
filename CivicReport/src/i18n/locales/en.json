@@ -1,0 +1,85 @@
+{
+  "tabs": {
+    "calendar": "Calendar",
+    "map": "Map",
+    "new": "New",
+    "list": "List"
+  },
+  "common": {
+    "success": "Success",
+    "noDescription": "No description",
+    "noData": "No data"
+  },
+  "drawer": {
+    "home": "Home",
+    "profile": "Profile",
+    "themeSelect": "Theme",
+    "languageSelect": "Language",
+    "logout": "Logout"
+  },
+  "screens": {
+    "calendarTitle": "Calendar",
+    "mapTitle": "Map",
+    "newTitle": "New violation",
+    "profileTitle": "Profile",
+    "profileStub": "Profile (stub)",
+    "themeTitle": "Theme",
+    "languageTitle": "Language",
+    "reportDetail": "Report Details"
+  },
+  "theme": {
+    "current": "Current theme",
+    "toggle": "Toggle theme"
+  },
+  "language": {
+    "current": "Current language",
+    "english": "English",
+    "ukrainian": "Ukrainian"
+  },
+  "violation": {
+    "description": "Description",
+    "category": "Category",
+    "takePhoto": "Take photo",
+    "save": "Save",
+    "saved": "Saved to SQLite",
+    "location": "location"
+  },
+  "categories": {
+    "road_damage": "Road damage",
+    "illegal_parking": "Illegal parking",
+    "garbage": "Garbage",
+    "lighting": "Lighting",
+    "other": "Other"
+  },
+  "list": {
+    "title": "Violations list",
+    "empty": "No saved violations"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "loginButton": "Sign in",
+    "registerButton": "Sign up",
+    "haveAccount": "Already have an account?",
+    "noAccount": "Don't have an account?",
+    "goToLogin": "Sign in",
+    "goToRegister": "Sign up",
+    "emailRequired": "Enter email",
+    "passwordRequired": "Enter password",
+    "firstNameRequired": "Enter first name",
+    "lastNameRequired": "Enter last name",
+    "passwordsNotMatch": "Passwords do not match",
+    "invalidEmail": "Invalid email format",
+    "passwordTooShort": "Password must be at least 6 characters",
+    "loginSuccess": "Login successful!",
+    "registerSuccess": "Registration successful! Logging in...",
+    "notLoggedIn": "You are not logged in",
+    "loginRequiredTitle": "Creating a violation is available only after login",
+    "loginRequiredText": "Open the left menu and go to the login screen"
+  }
+}
