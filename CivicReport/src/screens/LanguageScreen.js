@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { View, Text, Pressable } from "react-native";
 import { useTranslation } from "react-i18next";
 import { LanguageContext } from "../i18n/languageProvider";
-import { ThemeContext } from "../Theme/ThemeProvider";
+import { ThemeContext } from "../theme/ThemeProvider";
 
 export default function LanguageScreen() {
     const { t } = useTranslation();

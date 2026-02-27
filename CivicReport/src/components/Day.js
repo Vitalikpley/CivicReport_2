@@ -13,7 +13,7 @@ const Day = ({ day, isLandscape, hasTodos, onPress, calendarWidth }) => {
     const dotSize = isLandscape ? 5 : 7;
 
     const textColor = colors.text;
-    const disabledColor = colors.text + '80'; // 50% opacity
+    const disabledColor = colors.text + '80';
 
     return (
         <TouchableOpacity

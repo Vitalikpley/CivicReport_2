@@ -6,7 +6,6 @@ const API_BASE_URL = 'http://192.168.0.117:3000/api';
 
 const AUTH_TOKEN_KEY = 'auth_token';
 
-// Створюємо axios instance
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 5000,
@@ -15,7 +14,6 @@ const apiClient = axios.create({
   },
 });
 
-// Interceptor для додавання токена до запитів
 apiClient.interceptors.request.use(
   async (config) => {
     const token = await AsyncStorage.getItem(AUTH_TOKEN_KEY);
@@ -29,7 +27,6 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Перевірка інтернет-з'єднання
 export const isOnline = async () => {
   const netInfo = await NetInfo.fetch();
   return netInfo.isConnected && netInfo.isInternetReachable;

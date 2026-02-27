@@ -15,6 +15,7 @@
     "profile": "Профіль",
     "themeSelect": "Вибір теми",
     "languageSelect": "Вибір мови",
+    "filter": "Фільтр",
     "logout": "Вихід"
   },
   "screens": {
@@ -45,11 +46,17 @@
     "location": "Локація"
   },
   "categories": {
+    "all": "Всі категорії",
     "road_damage": "Пошкодження дороги",
     "illegal_parking": "Незаконне паркування",
     "garbage": "Сміття",
     "lighting": "Освітлення",
     "other": "Інше"
+  },
+  "filter": {
+    "apply": "Фільтрувати",
+    "reset": "Скинути",
+    "title": "Фільтр категорій"
   },
   "list": {
     "title": "Список правопорушень",

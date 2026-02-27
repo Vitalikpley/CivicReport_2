@@ -9,13 +9,13 @@ import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { Pressable } from "react-native";
 import { DrawerActions } from "@react-navigation/native";
-// import BottomTabs from "./BottomTabs"; // Removed
-import HomeStack from "./HomeStack"; // Added
+import HomeStack from "./HomeStack";
 import AuthStack from "./AuthStack";
 
 import ProfileScreen from "../screens/ProfileScreen";
 import ThemeScreen from "../screens/ThemeScreen";
 import LanguageScreen from "../screens/LanguageScreen";
+import FilterScreen from "../screens/FilterScreen";
 import { useAuth } from "../auth/AuthProvider";
 
 const Drawer = createDrawerNavigator();
@@ -38,7 +38,7 @@ function CustomDrawerContent(props) {
           }}
         />
       )}
-      {!isAuthenticated && ( // Conditional Login
+      {!isAuthenticated && (
         <DrawerItem
           label={t("auth.login")}
           icon={({ color, size }) => (
@@ -53,6 +53,7 @@ function CustomDrawerContent(props) {
     </DrawerContentScrollView>
   );
 }
+
 
 export default function DrawerNavigator() {
   const { colors } = useTheme();
@@ -77,6 +78,7 @@ export default function DrawerNavigator() {
             Profile: "person",
             Theme: "moon",
             Language: "language",
+            Filter: "filter",
             Auth: "log-in",
           };
           return <Ionicons name={icons[route.name]} size={size} color={color} />;
@@ -85,7 +87,7 @@ export default function DrawerNavigator() {
     >
       <Drawer.Screen
         name="Home"
-        component={HomeStack} // Changed from BottomTabs to HomeStack
+        component={HomeStack}
         options={{ headerShown: false, title: t("drawer.home") }}
       />
       <Drawer.Screen
@@ -104,13 +106,20 @@ export default function DrawerNavigator() {
         options={{ title: t("drawer.languageSelect") }}
       />
       <Drawer.Screen
+        name="Filter"
+        component={FilterScreen}
+        options={{ title: t("drawer.filter") }}
+      />
+      <Drawer.Screen
         name="Auth"
         component={AuthStack}
         options={{
           title: t("auth.login"),
-          drawerItemStyle: { display: "none" } // Hide from standard list, use custom button
+          drawerItemStyle: { display: "none" }
         }}
       />
     </Drawer.Navigator>
   );
 }
+
+

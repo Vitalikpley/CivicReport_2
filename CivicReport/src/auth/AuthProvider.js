@@ -8,9 +8,9 @@ const USER_DATA_KEY = "user_data";
 export const AuthContext = createContext({
     isAuthenticated: false,
     user: null,
-    login: async () => {},
-    register: async () => {},
-    logout: async () => {},
+    login: async () => { },
+    register: async () => { },
+    logout: async () => { },
     isReady: false,
 });
 
@@ -44,13 +44,13 @@ export function AuthProvider({ children }) {
             }
 
             const response = await authAPI.login(email, password);
-            
+
             await AsyncStorage.setItem(AUTH_TOKEN_KEY, response.token);
             await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(response.user));
-            
+
             setIsAuthenticated(true);
             setUser(response.user);
-            
+
             return { success: true };
         } catch (error) {
             console.error("[Auth] Login error:", error);
@@ -67,15 +67,14 @@ export function AuthProvider({ children }) {
             }
 
             await authAPI.register(firstName, lastName, email, password);
-            // Після реєстрації автоматично входимо
             const loginResponse = await authAPI.login(email, password);
-            
+
             await AsyncStorage.setItem(AUTH_TOKEN_KEY, loginResponse.token);
             await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(loginResponse.user));
-            
+
             setIsAuthenticated(true);
             setUser(loginResponse.user);
-            
+
             return { success: true };
         } catch (error) {
             console.error("[Auth] Register error:", error);
@@ -89,7 +88,6 @@ export function AuthProvider({ children }) {
         await AsyncStorage.removeItem(USER_DATA_KEY);
         setIsAuthenticated(false);
         setUser(null);
-        console.log("[Auth] Logged out");
     };
 
     const value = useMemo(

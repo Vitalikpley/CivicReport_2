@@ -10,7 +10,7 @@ import {
     useWindowDimensions,
 } from 'react-native';
 
-const TodoList = ({ selectedDate, todos, onAddTodo, onUpdateTodo, onDeleteTodo, onToggleTodo, isLandscape }) => {
+const ViolationList = ({ selectedDate, todos, onAddTodo, onUpdateTodo, onDeleteTodo, onToggleTodo, isLandscape }) => {
     const { width, height } = useWindowDimensions();
     const [newTaskText, setNewTaskText] = useState('');
     const [editingTodo, setEditingTodo] = useState(null);
@@ -366,5 +366,5 @@ const styles = StyleSheet.create({
     },
 });
 
-export default TodoList;
+export default ViolationList;
 

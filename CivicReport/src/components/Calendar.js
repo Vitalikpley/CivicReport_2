@@ -7,6 +7,7 @@ import Day from './Day';
 import Header from './Header';
 import { violationsAPI, isOnline } from '../services/api';
 import { fetchViolations } from '../db/sqlite';
+import { useFilter } from '../services/FilterProvider';
 
 const WEEK_DAYS_UK = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
 const WEEK_DAYS_EN = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -84,6 +85,7 @@ export default function Calendar() {
     const [selectedDate, setSelectedDate] = useState(null);
     const [violationsByDate, setViolationsByDate] = useState({});
     const [datesWithViolations, setDatesWithViolations] = useState([]);
+    const { selectedCategory } = useFilter();
 
     useEffect(() => {
         const updatedDays = getRequiredDays(currentYear, currentMonth);
@@ -92,39 +94,35 @@ export default function Calendar() {
 
     const loadViolations = useCallback(async () => {
 
-            const online = await isOnline();
+        const online = await isOnline();
 
-            if (!online) {
-                // Офлайн
-                setViolationsByDate({});
-                setDatesWithViolations([]);
-                return;
-            }
+        if (!online) {
+            setViolationsByDate({});
+            setDatesWithViolations([]);
+            return;
+        }
 
-            try {
-                // Отримуємо список дат з бекенду
-                const dates = await violationsAPI.getDates();
-                setDatesWithViolations(dates);
-                console.log('[Calendar] Dates with violations from API:', dates.length);
+        try {
+            const dates = await violationsAPI.getDates();
+            setDatesWithViolations(dates);
+            console.log('[Calendar] Dates with violations from API:', dates.length);
 
-            } catch (apiErr) {
-                console.warn('[Calendar] API error:', apiErr);
-                Alert.alert('Помилка', 'Сервер не доступний. Неможливо завантажити порушення.');
-                setViolationsByDate({});
-                setDatesWithViolations([]);
-            }
+        } catch (apiErr) {
+            console.warn('[Calendar] API error:', apiErr);
+            Alert.alert('Помилка', 'Сервер не доступний. Неможливо завантажити порушення.');
+            setViolationsByDate({});
+            setDatesWithViolations([]);
+        }
     }, [selectedDate]);
 
     useFocusEffect(
         useCallback(() => {
-            loadViolations(); // виконується тільки при фокусі
+            loadViolations();
 
-            // якщо потрібно: cleanup при виході зі сторінки
-            return () => {};
+            return () => { };
         }, []) // порожній масив для стабільності
     );
 
-    // Завантажуємо правопорушення при зміні обраної дати
     useEffect(() => {
         if (!selectedDate) return;
 
@@ -134,7 +132,6 @@ export default function Calendar() {
                 const dateKey = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
 
                 if (!online) {
-                    // Офлайн
                     setViolationsByDate({});
                     return;
                 }
@@ -156,7 +153,6 @@ export default function Calendar() {
                         setViolationsByDate({});
                     }
                 } else {
-                    // Дати немає в бекенді — нічого не робимо
                     setViolationsByDate(prev => ({
                         ...prev,
                         [dateKey]: []
@@ -195,7 +191,6 @@ export default function Calendar() {
     };
 
     const hasTodos = (dateKey) => {
-        // Перевіряємо чи є дата в списку дат з правопорушеннями або в локальних даних
         return datesWithViolations.includes(dateKey) || (Array.isArray(violationsByDate[dateKey]) && violationsByDate[dateKey].length > 0);
     };
 
@@ -214,12 +209,11 @@ export default function Calendar() {
         ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`
         : null;
     const dayViolations = selectedDateKey && violationsByDate[selectedDateKey]
-        ? violationsByDate[selectedDateKey]
+        ? violationsByDate[selectedDateKey].filter(v => !selectedCategory || v.category === selectedCategory)
         : [];
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
-            {/* Календар зверху */}
             <View style={styles.calendarSection}>
                 <Header
                     currentDate={new Date(currentYear, currentMonth, 1)}

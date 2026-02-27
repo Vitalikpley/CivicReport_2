@@ -6,7 +6,6 @@ let initialized = false;
 export const openDatabase = async () => {
     if (!db) {
         db = await SQLite.openDatabaseAsync("lawful_citizen.db");
-        console.log("Database opened");
     }
     return db;
 };
@@ -30,7 +29,6 @@ export const ensureViolationsTable = async () => {
     `);
 
     initialized = true;
-    console.log("Violations table ready");
 };
 
 export const fetchViolations = async () => {

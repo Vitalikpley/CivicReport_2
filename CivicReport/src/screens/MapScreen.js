@@ -1,20 +1,19 @@
 import { useState, useEffect, useCallback } from "react";
-import { View, Text, StyleSheet, ActivityIndicator, Alert } from "react-native";
+import { View, StyleSheet, ActivityIndicator, Alert } from "react-native";
 import { useTheme, useNavigation } from "@react-navigation/native";
-import { useTranslation } from "react-i18next";
 import { useFocusEffect } from "@react-navigation/native";
-import MapView, { Marker, Callout } from "react-native-maps";
+import { Marker } from "react-native-maps";
 import * as Location from "expo-location";
 import { violationsAPI, isOnline } from "../services/api";
-import { fetchViolations } from "../db/sqlite";
+import { useFilter } from "../services/FilterProvider";
+import MapView from 'react-native-map-clustering';
 
 export default function MapScreen() {
     const { colors } = useTheme();
-    const { t } = useTranslation();
     const navigation = useNavigation();
     const [violations, setViolations] = useState([]);
-    const [userLocation, setUserLocation] = useState(null);
     const [loading, setLoading] = useState(true);
+    const { selectedCategory } = useFilter();
 
     const loadViolations = useCallback(async () => {
         setLoading(true);
@@ -22,20 +21,19 @@ export default function MapScreen() {
             const online = await isOnline();
 
             if (!online) {
-                // Офлайн
                 setViolations([]);
                 return;
             }
 
             try {
-                // Отримуємо геолокації з бекенду
                 const locations = await violationsAPI.getAll();
                 console.log("[Map] Locations from API:", locations.length);
 
                 const violationsData = locations.map((loc) => ({
                     id: loc.id,
                     latitude: loc.location.latitude,
-                    longitude: loc.location.longitude
+                    longitude: loc.location.longitude,
+                    category: loc.category
                 }));
 
                 setViolations(violationsData);
@@ -55,10 +53,6 @@ export default function MapScreen() {
         const getCurrentLocation = async () => {
             try {
                 const { status } = await Location.requestForegroundPermissionsAsync();
-                if (status === "granted") {
-                    const currentLocation = await Location.getCurrentPositionAsync({});
-                    setUserLocation(currentLocation);
-                }
             } catch (e) {
                 console.warn("Location error:", e);
             }
@@ -90,22 +84,24 @@ export default function MapScreen() {
                     latitudeDelta: 7,
                     longitudeDelta: 7,
                 }}
-                showsUserLocation={false} //userLocation != null
+                showsUserLocation={false}
             >
-                {violations.map((violation) => (
-                    <Marker
-                        key={violation.id}
-                        coordinate={{
-                            latitude: violation.latitude,
-                            longitude: violation.longitude,
-                        }}
-                        onPress={() => navigation.navigate("ReportDetail", { violation: violation })}
-                    >
-                        <View style={styles.marker}>
-                            <View style={styles.markerDot} />
-                        </View>
-                    </Marker>
-                ))}
+                {violations
+                    .filter(v => !selectedCategory || v.category === selectedCategory)
+                    .map((violation) => (
+                        <Marker
+                            key={violation.id}
+                            coordinate={{
+                                latitude: violation.latitude,
+                                longitude: violation.longitude,
+                            }}
+                            onPress={() => navigation.navigate("ReportDetail", { violation: violation })}
+                        >
+                            <View style={styles.marker}>
+                                <View style={styles.markerDot} />
+                            </View>
+                        </Marker>
+                    ))}
             </MapView>
         </View>
     );

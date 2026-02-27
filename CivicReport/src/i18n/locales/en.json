@@ -15,6 +15,7 @@
     "profile": "Profile",
     "themeSelect": "Theme",
     "languageSelect": "Language",
+    "filter": "Filter",
     "logout": "Logout"
   },
   "screens": {
@@ -45,11 +46,17 @@
     "location": "location"
   },
   "categories": {
+    "all": "All categories",
     "road_damage": "Road damage",
     "illegal_parking": "Illegal parking",
     "garbage": "Garbage",
     "lighting": "Lighting",
     "other": "Other"
+  },
+  "filter": {
+    "apply": "Filter",
+    "reset": "Reset",
+    "title": "Category Filter"
   },
   "list": {
     "title": "Violations list",

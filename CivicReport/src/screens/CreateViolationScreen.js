@@ -18,15 +18,7 @@ import { insertOfflineViolation } from "../db/sqlite";
 import { uploadImage } from "../services/cloudinary";
 import { violationsAPI, isOnline } from "../services/api";
 import { useAuth } from "../auth/AuthProvider";
-
-
-const VIOLATION_CATEGORY_KEYS = [
-    "road_damage",
-    "illegal_parking",
-    "garbage",
-    "lighting",
-    "other",
-];
+import Categories from "../components/Categories";
 
 export default function CreateViolationScreen() {
   const { colors } = useTheme();
@@ -34,7 +26,7 @@ export default function CreateViolationScreen() {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState(VIOLATION_CATEGORY_KEYS[0]);
+  const [category, setCategory] = useState("road_damage");
   const [photoBase64, setPhotoBase64] = useState(null);
   const [photoMime, setPhotoMime] = useState(null);
 
@@ -67,114 +59,107 @@ export default function CreateViolationScreen() {
   };
 
   const save = async () => {
-        if (!description.trim()) {
-            Alert.alert("", "Введіть опис.");
-            return;
-        }
-        if (!photoBase64) {
-            Alert.alert("", "Зробіть фото.");
-            return;
-        }
+    if (!description.trim()) {
+      Alert.alert("", "Введіть опис.");
+      return;
+    }
+    if (!photoBase64) {
+      Alert.alert("", "Зробіть фото.");
+      return;
+    }
 
-        setSaving(true);
+    setSaving(true);
 
-        const datetime = new Date().toISOString();
-        const trimmedDesc = description.trim();
-        const mime = photoMime ?? "image/jpeg";
+    const datetime = new Date().toISOString();
+    const trimmedDesc = description.trim();
+    const mime = photoMime ?? "image/jpeg";
 
-        let latitude = null;
-        let longitude = null;
+    let latitude = null;
+    let longitude = null;
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status === "granted") {
+        const currentLocation = await Location.getCurrentPositionAsync({});
+        latitude = currentLocation.coords.latitude;
+        longitude = currentLocation.coords.longitude;
+        console.log("Geolocation:", latitude, longitude);
+      }
+    } catch (locErr) {
+      console.warn("Location error:", locErr);
+    }
+
+    try {
+      const localId = await insertOfflineViolation({
+        description: trimmedDesc,
+        category,
+        datetime,
+        photoBase64,
+        photoMime: mime,
+        latitude,
+        longitude,
+      });
+
+      console.log("[SQLite] Порушення збережено локально з ID:", localId);
+
+      const online = await isOnline();
+
+      if (online) {
         try {
-            const { status } = await Location.requestForegroundPermissionsAsync();
-            if (status === "granted") {
-                const currentLocation = await Location.getCurrentPositionAsync({});
-                latitude = currentLocation.coords.latitude;
-                longitude = currentLocation.coords.longitude;
-                console.log("Geolocation:", latitude, longitude);
+          let photoUrl = null;
+          if (photoUri) {
+            try {
+              photoUrl = await uploadImage(photoUri, photoFileName, mime);
+              console.log("[Cloudinary] Фото завантажено:", photoUrl);
+            } catch (uploadErr) {
+              console.warn("[Cloudinary] Помилка завантаження:", uploadErr);
+              Alert.alert("", "Порушення збережено локально, але фото не завантажено.");
             }
-        } catch (locErr) {
-            console.warn("Location error:", locErr);
-        }
+          }
 
-        try {
-            // Завжди спочатку зберігаємо локально в SQLite
-            const localId = await insertOfflineViolation({
-                description: trimmedDesc,
-                category,
-                datetime,
-                photoBase64,
-                photoMime: mime,
-                latitude,
-                longitude,
-            });
+          if (photoUrl) {
+            const violationData = {
+              description: trimmedDesc,
+              category,
+              dateTime: datetime,
+              photoUrl,
+              latitude: latitude || 0,
+              longitude: longitude || 0,
+            };
 
-            console.log("[SQLite] Порушення збережено локально з ID:", localId);
+            await violationsAPI.create(violationData);
+            console.log("[API] Порушення відправлено на сервер");
 
-            // Перевіряємо інтернет
-            const online = await isOnline();
-            
-            if (online) {
-                try {
-                    // Завантажуємо фото в Cloudinary
-                    let photoUrl = null;
-                    if (photoUri) {
-                        try {
-                            photoUrl = await uploadImage(photoUri, photoFileName, mime);
-                            console.log("[Cloudinary] Фото завантажено:", photoUrl);
-                        } catch (uploadErr) {
-                            console.warn("[Cloudinary] Помилка завантаження:", uploadErr);
-                            Alert.alert("", "Порушення збережено локально, але фото не завантажено.");
-                        }
-                    }
-
-                    // Відправляємо на сервер
-                    if (photoUrl) {
-                        const violationData = {
-                            description: trimmedDesc,
-                            category,
-                            dateTime: datetime,
-                            photoUrl,
-                            latitude: latitude || 0,
-                            longitude: longitude || 0,
-                        };
-
-                        await violationsAPI.create(violationData);
-                        console.log("[API] Порушення відправлено на сервер");
-
-                        // Видаляємо з локальної БД після успішної відправки
-                        if (localId) {
-                            const { deleteViolation } = require("../db/sqlite");
-                            await deleteViolation(localId);
-                            console.log("[SQLite] Локальний запис видалено після синхронізації");
-                        }
-
-                        Alert.alert("", t("violation.saved"));
-                    } else {
-                        Alert.alert("", "Порушення збережено локально. Спробуйте пізніше.");
-                    }
-                } catch (apiErr) {
-                    console.warn("[API] Помилка відправки на сервер:", apiErr);
-                    Alert.alert("", "Порушення збережено локально. Воно буде синхронізовано пізніше.");
-                }
-            } else {
-                // Офлайн режим - тільки локальне збереження
-                Alert.alert("", "Порушення збережено локально. Воно буде синхронізовано при відновленні інтернету.");
+            if (localId) {
+              const { deleteViolation } = require("../db/sqlite");
+              await deleteViolation(localId);
+              console.log("[SQLite] Локальний запис видалено після синхронізації");
             }
 
-            // Очищаємо форму
-            setDescription("");
-            setCategory(VIOLATION_CATEGORY_KEYS[0]);
-            setPhotoBase64(null);
-            setPhotoMime(null);
-            setPhotoUri(null);
-            setPhotoFileName(null);
-        } catch (e) {
-            console.warn("Save violation error:", e);
-            Alert.alert("", "Помилка збереження.");
-        } finally {
-            setSaving(false);
+            Alert.alert("", t("violation.saved"));
+          } else {
+            Alert.alert("", "Порушення збережено локально. Спробуйте пізніше.");
+          }
+        } catch (apiErr) {
+          console.warn("[API] Помилка відправки на сервер:", apiErr);
+          Alert.alert("", "Порушення збережено локально. Воно буде синхронізовано пізніше.");
         }
-    };
+      } else {
+        Alert.alert("", "Порушення збережено локально. Воно буде синхронізовано при відновленні інтернету.");
+      }
+
+      setDescription("");
+      setCategory("road_damage");
+      setPhotoBase64(null);
+      setPhotoMime(null);
+      setPhotoUri(null);
+      setPhotoFileName(null);
+    } catch (e) {
+      console.warn("Save violation error:", e);
+      Alert.alert("", "Помилка збереження.");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const { width } = useWindowDimensions();
   const thumbSize = Math.min(width - 32, 120);
@@ -182,13 +167,13 @@ export default function CreateViolationScreen() {
   if (!isAuthenticated) {
     return (
       <View style={[styles.lockedContainer, { backgroundColor: colors.background }]}>
-          <Text style={[styles.lockedTitle, { color: colors.text }]}>
-              {t("auth.loginRequiredTitle")}
-          </Text>
+        <Text style={[styles.lockedTitle, { color: colors.text }]}>
+          {t("auth.loginRequiredTitle")}
+        </Text>
 
-          <Text style={[styles.lockedText, { color: colors.text }]}>
-              {t("auth.loginRequiredText")}
-          </Text>
+        <Text style={[styles.lockedText, { color: colors.text }]}>
+          {t("auth.loginRequiredText")}
+        </Text>
         <Pressable
           onPress={() => navigation.getParent()?.navigate("Auth")}
           style={[styles.lockedButton, { backgroundColor: colors.primary }]}
@@ -232,22 +217,10 @@ export default function CreateViolationScreen() {
       />
 
       <Text style={[styles.label, { color: colors.text }]}>{t("violation.category")}</Text>
-      <View style={styles.categoryRow}>
-        {VIOLATION_CATEGORY_KEYS.map((key) => (
-          <Pressable
-            key={key}
-            onPress={() => setCategory(key)}
-            style={[
-              styles.categoryChip,
-              { backgroundColor: category === key ? colors.primary : colors.surface, borderColor: colors.border },
-            ]}
-          >
-            <Text style={[styles.categoryText, { color: category === key ? "#fff" : colors.text }]}>
-              {t(`categories.${key}`)}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
+      <Categories
+        selectedCategory={category}
+        onSelect={setCategory}
+      />
 
       <Pressable
         onPress={save}

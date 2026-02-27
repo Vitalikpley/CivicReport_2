@@ -6,7 +6,6 @@ import RegisterScreen from "../screens/RegisterScreen";
 const Stack = createStackNavigator();
 
 export default function AuthStack() {
-    const { t } = useTranslation();
 
     return (
         <Stack.Navigator

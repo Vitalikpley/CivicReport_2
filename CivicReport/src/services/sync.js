@@ -29,32 +29,26 @@ export const syncOfflineViolations = async () => {
 
         for (const localViolation of localViolations) {
             try {
-                // Завантажуємо фото в Cloudinary
                 let photoUrl = null;
                 if (localViolation.photo_base64) {
                     try {
-                        // Створюємо тимчасовий файл з base64
                         const base64Data = localViolation.photo_base64;
                         const mimeType = localViolation.photo_mime || 'image/jpeg';
                         const extension = mimeType.split('/')[1] || 'jpg';
                         const fileName = `violation_${localViolation.id}.${extension}`;
-                        
-                        // Зберігаємо base64 у тимчасовий файл
+
                         const tempUri = `${FileSystem.cacheDirectory}${fileName}`;
                         await FileSystem.writeAsStringAsync(tempUri, base64Data, {
                             encoding: FileSystem.EncodingType.Base64,
                         });
 
-                        // Завантажуємо в Cloudinary
                         photoUrl = await uploadImage(tempUri, fileName, mimeType);
-                        
-                        // Видаляємо тимчасовий файл
+
                         await FileSystem.deleteAsync(tempUri, { idempotent: true });
-                        
+
                         console.log(`[Sync] Photo uploaded for violation ${localViolation.id}`);
                     } catch (uploadErr) {
                         console.warn(`[Sync] Failed to upload photo for violation ${localViolation.id}:`, uploadErr);
-                        // Продовжуємо без фото
                     }
                 }
 
@@ -96,11 +90,11 @@ export const syncOfflineViolations = async () => {
                 }
             }
 
-            return { 
-                synced: syncedIds.length, 
+            return {
+                synced: syncedIds.length,
                 failed: failedIds.length,
                 syncedIds,
-                failedIds 
+                failedIds
             };
         } catch (syncErr) {
             console.error('[Sync] Failed to sync violations:', syncErr);

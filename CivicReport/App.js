@@ -1,11 +1,12 @@
 import { useContext, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { NavigationContainer, DefaultTheme, DarkTheme } from "@react-navigation/native";
-import { ThemeProvider, ThemeContext } from "./src/Theme/ThemeProvider";
+import { ThemeProvider, ThemeContext } from "./src/theme/ThemeProvider";
 import { LanguageProvider, LanguageContext } from "./src/i18n/languageProvider";
 import { AuthProvider, useAuth } from "./src/auth/AuthProvider";
 import { initDb } from "./src/db/sqlite";
 import { syncOfflineViolations } from "./src/services/sync";
+import { FilterProvider } from "./src/services/FilterProvider";
 import DrawerNavigator from "./src/navigation/DrawersNavigator";
 
 function AppInnerWithAuth() {
@@ -58,7 +59,9 @@ export default function App() {
         <LanguageProvider>
             <ThemeProvider>
                 <AuthProvider>
-                    <AppInnerWithAuth />
+                    <FilterProvider>
+                        <AppInnerWithAuth />
+                    </FilterProvider>
                 </AuthProvider>
             </ThemeProvider>
         </LanguageProvider>

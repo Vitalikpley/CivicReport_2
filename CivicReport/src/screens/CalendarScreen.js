@@ -1,6 +1,6 @@
 import { View, StyleSheet } from "react-native";
 import { useTheme } from "@react-navigation/native";
-import Calendar from "../calendar/Calendar";
+import Calendar from "../components/Calendar";
 
 export default function CalendarScreen() {
   const { colors } = useTheme();
