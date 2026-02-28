@@ -1,5 +1,6 @@
 import { violationRepository } from '../repositories/violationRepository';
 import { ViolationDto, SyncViolationDto } from '../dto/ViolationDto';
+import mongoose from "mongoose";
 
 export class ViolationService {
     private formatViolation(v: any) {
@@ -15,7 +16,7 @@ export class ViolationService {
     }
 
     async getUniqueDates() {
-        const dates = await violationRepository.getDistinctDates();
+        const dates = await violationRepository.getDistinctDates("approved");
         const uniqueDates = [...new Set(
             dates.map((date: any) => {
                 const d = new Date(date);
@@ -31,24 +32,24 @@ export class ViolationService {
         const endDate = new Date(dateString);
         endDate.setHours(23, 59, 59, 999);
 
-        const violations = await violationRepository.findByDateRange(startDate, endDate);
+        const violations = await violationRepository.findByDateRange(startDate, endDate, "approved");
         return violations.map(this.formatViolation);
     }
 
-    async getUniqueLocations() {
-        const violations = await violationRepository.findAllLocations();
-        const locations = violations.map((v: any) => ({
-            latitude: v.location?.latitude,
-            longitude: v.location?.longitude
-        }));
-
-        return [...new Set(locations.map(loc => `${loc.latitude},${loc.longitude}`))];
-    }
-
-    async getViolationsByLocation(lat: number, lng: number) {
-        const violations = await violationRepository.findByLocation(lat, lng);
-        return violations.map(this.formatViolation);
-    }
+    // async getUniqueLocations() {
+    //     const violations = await violationRepository.findAllLocations();
+    //     const locations = violations.map((v: any) => ({
+    //         latitude: v.location?.latitude,
+    //         longitude: v.location?.longitude
+    //     }));
+    //
+    //     return [...new Set(locations.map(loc => `${loc.latitude},${loc.longitude}`))];
+    // }
+    //
+    // async getViolationsByLocation(lat: number, lng: number) {
+    //     const violations = await violationRepository.findByLocation(lat, lng);
+    //     return violations.map(this.formatViolation);
+    // }
 
     async createViolation(data: ViolationDto, userId: string) {
         const violation = await violationRepository.create({
@@ -78,17 +79,43 @@ export class ViolationService {
     }
 
     async getAllViolations() {
-        const violations = await violationRepository.findAll();
+        const violations = await violationRepository.findAll("approved");
         return violations.map(this.formatViolation);
     }
 
     async getViolationById(id: string) {
-        const violation = await violationRepository.findById(id);
+        const violation = await violationRepository.findById(id, "approved");
         if (!violation) {
             throw new Error('NOT_FOUND');
         }
         return this.formatViolation(violation);
     }
+    // static isValidId(id: string): boolean {
+    //     return mongoose.Types.ObjectId.isValid(id);
+    // }
+
+    async listPending() {
+        return violationRepository.findAll("pending");
+    }
+
+    async getByIdForModerator(id: string) {
+        const doc = await violationRepository.findById(id);
+        if (!doc) throw new Error('Not found');
+        return doc;
+    }
+
+    async approve(id: string) {
+        const doc = await violationRepository.setStatus(id, 'approved');
+        if (!doc) throw new Error('Submission not found');
+        return doc;
+    }
+
+    async reject(id: string) {
+        const doc = await violationRepository.setStatus(id, 'rejected');
+        if (!doc) throw new Error('Submission not found');
+        return doc;
+    }
+
 }
 
 export const violationService = new ViolationService();

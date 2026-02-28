@@ -1,6 +1,8 @@
 import { Context } from 'koa';
 import { violationService } from '../services/violationService';
 import { ViolationDto, SyncViolationDto } from '../dto/ViolationDto';
+import {authMiddleware, requireModerator} from "../middleware/auth";
+import router from "../routes/violations";
 
 export class ViolationController {
     async getDates(ctx: Context) {
@@ -23,41 +25,41 @@ export class ViolationController {
         }
     }
 
-    async getLocations(ctx: Context) {
-        try {
-            const locations = await violationService.getUniqueLocations();
-            ctx.body = { locations };
-        } catch (error: any) {
-            ctx.status = 500;
-            ctx.body = { error: 'Помилка при отриманні геолокацій', details: error.message };
-        }
-    }
-
-    async getByLocation(ctx: Context) {
-        try {
-            const { latitude, longitude } = ctx.query;
-
-            if (!latitude || !longitude) {
-                ctx.status = 400;
-                ctx.body = { error: 'Потрібні параметри latitude та longitude' };
-                return;
-            }
-
-            const violations = await violationService.getViolationsByLocation(
-                parseFloat(latitude as string),
-                parseFloat(longitude as string)
-            );
-            ctx.body = violations;
-        } catch (error: any) {
-            ctx.status = 500;
-            ctx.body = { error: 'Помилка при отриманні правопорушень за геолокацією', details: error.message };
-        }
-    }
+    // async getLocations(ctx: Context) {
+    //     try {
+    //         const locations = await violationService.getUniqueLocations();
+    //         ctx.body = { locations };
+    //     } catch (error: any) {
+    //         ctx.status = 500;
+    //         ctx.body = { error: 'Помилка при отриманні геолокацій', details: error.message };
+    //     }
+    // }
+    //
+    // async getByLocation(ctx: Context) {
+    //     try {
+    //         const { latitude, longitude } = ctx.query;
+    //
+    //         if (!latitude || !longitude) {
+    //             ctx.status = 400;
+    //             ctx.body = { error: 'Потрібні параметри latitude та longitude' };
+    //             return;
+    //         }
+    //
+    //         const violations = await violationService.getViolationsByLocation(
+    //             parseFloat(latitude as string),
+    //             parseFloat(longitude as string)
+    //         );
+    //         ctx.body = violations;
+    //     } catch (error: any) {
+    //         ctx.status = 500;
+    //         ctx.body = { error: 'Помилка при отриманні правопорушень за геолокацією', details: error.message };
+    //     }
+    // }
 
     async create(ctx: Context) {
         try {
             const data = ctx.request.body as ViolationDto;
-            const userId = ctx.state.user.id;
+            const userId = ctx.state.user._id;
 
             const violation = await violationService.createViolation(data, userId);
 
@@ -72,8 +74,8 @@ export class ViolationController {
     async sync(ctx: Context) {
         try {
             const { violations } = ctx.request.body as SyncViolationDto;
-            const userId = ctx.state.user.id;
-
+            const userId = ctx.state.user._id;
+            console.log("--------------",userId);
             const syncedViolations = await violationService.syncViolations(violations, userId);
 
             ctx.status = 201;
@@ -111,6 +113,31 @@ export class ViolationController {
             }
         }
     }
+
+
+    async listPending(ctx: Context) {
+        ctx.body = await violationService.listPending();
+    }
+
+    async getByIdForModerator(ctx: Context) {
+        const id = ctx.params.id;
+        //if (!violationService.isValidId(id)) throw new Error(`id ${id} is not valid`);
+        ctx.body = await violationService.getByIdForModerator(id);
+    }
+
+
+    async approve(ctx: Context) {
+        const id = ctx.params.id;
+        //if (!violationService.isValidId(id)) throw new Error(`id ${id} is not valid`);
+        ctx.body = await violationService.approve(id);
+    }
+
+    async reject(ctx: Context) {
+        const id = ctx.params.id;
+        //if (!violationService.isValidId(id)) throw new Error(`id ${id} is not valid`);
+        ctx.body = await violationService.reject(id);
+    }
+
 }
 
 export const violationController = new ViolationController();

@@ -8,9 +8,9 @@ const USER_DATA_KEY = "user_data";
 export const AuthContext = createContext({
     isAuthenticated: false,
     user: null,
-    login: async () => { },
-    register: async () => { },
-    logout: async () => { },
+    login: async () => {},
+    register: async () => {},
+    logout: async () => {},
     isReady: false,
 });
 

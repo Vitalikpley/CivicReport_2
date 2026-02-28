@@ -10,6 +10,11 @@ const violationSchema = new mongoose.Schema({
         latitude: { type: Number, required: true },
         longitude: { type: Number, required: true }
     },
+    status: {
+        type: String,
+        enum: ['pending', 'approved', 'rejected'],
+        default: 'pending',
+    },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
 }, {
     timestamps: true

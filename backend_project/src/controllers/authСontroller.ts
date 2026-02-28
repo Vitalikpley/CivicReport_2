@@ -9,7 +9,7 @@ export class AuthController {
             const data = ctx.request.body as RegisterDto;
             await authService.register(data);
 
-            ctx.status = 201; // Created
+            ctx.status = 201;
             ctx.body = { message: 'Зареєстровано успішно' };
         } catch (error: any) {
             if (error.message === 'USER_EXISTS') {
@@ -34,7 +34,8 @@ export class AuthController {
                     id: result.user._id,
                     firstName: result.user.firstName,
                     lastName: result.user.lastName,
-                    email: result.user.email
+                    email: result.user.email,
+                    role: result.user.role
                 }
             };
         } catch (error: any) {

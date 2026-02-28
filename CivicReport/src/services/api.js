@@ -63,18 +63,6 @@ export const violationsAPI = {
     return response.data || [];
   },
 
-  getLocations: async () => {
-    const response = await apiClient.get('/violations/locations');
-    return response.data.locations || [];
-  },
-
-  getByLocation: async (latitude, longitude, radius = 1000) => {
-    const response = await apiClient.get('/violations/by-location', {
-      params: { latitude, longitude, radius },
-    });
-    return response.data || [];
-  },
-
   create: async (violationData) => {
     const response = await apiClient.post('/violations', violationData);
     return response.data;
